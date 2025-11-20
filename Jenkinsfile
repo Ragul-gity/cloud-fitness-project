@@ -4,26 +4,36 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                // Jenkins automatically checks out the code from your Git repo
+                // Jenkins automatically checks out the code from your repository
                 echo 'Code checked out successfully.'
             }
         }
-        stage('Build and Deploy') {
+        
+        stage('Deploy Application') {
             steps {
-                sh '''
-                echo "Starting deployment script..."
-                # Navigate to the workspace where Jenkins checked out the code
-                cd /var/lib/jenkins/workspace/fitness-app-pipeline/
+                echo "--- Starting Deployment Script ---"
                 
-                # Execute the existing deployment script
-                /home/ubuntu/fitness/cloudProject_Healthcare/cloud_3/deploy.sh
-                '''
+                // Execute the deployment script that was checked out from Git.
+                // The script contains the logic to:
+                // 1. cd to /home/ubuntu/fitness/cloudProject_Healthcare/cloud_3
+                // 2. git pull
+                // 3. npm install
+                // 4. pm2 restart
+                sh './deploy.sh'
+                
+                echo "--- Deployment triggered via PM2. Check site! ---"
             }
         }
     }
+    
     post {
         always {
-            echo 'Pipeline finished.'
+            // Displays the PM2 status in the Jenkins log for verification
+            sh 'pm2 list'
+            echo 'Pipeline job finished.'
+        }
+        failure {
+            echo 'Deployment Failed! Check logs for errors.'
         }
     }
 }

@@ -1,20 +1,25 @@
 pipeline {
   agent any
   environment {
-    EC2 = 'EC2_PUBLIC_IP'   // replace with your EC2 IP
+    EC2 = '44.211.25.29'      // replace
     SSH_CRED = 'EC2_SSH_KEY'
     REMOTE_DIR = '/home/ubuntu/fitness/cloudProject_Healthcare/cloud_3'
   }
+
   stages {
-    stage('Checkout') { steps { checkout scm } }
+    stage('Checkout') {
+      steps { checkout scm }
+    }
+
     stage('Install & Test') {
-      agent { docker { image 'node:18' } }   // << run this stage inside node container
       steps {
-        sh 'node -v && npm -v'
-        sh 'npm install --no-audit --no-fund'
-        sh 'npm test || true'
+        // run npm inside an ephemeral node container, mounting workspace
+        sh '''
+          docker run --rm -v "$PWD":/work -w /work node:18 bash -c "npm install --no-audit --no-fund && npm test || true"
+        '''
       }
     }
+
     stage('Deploy to EC2') {
       steps {
         sshagent([SSH_CRED]) {

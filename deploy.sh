@@ -6,4 +6,6 @@ git pull origin main || true
 npm install
 pm2 restart health-app || pm2 start server.js --name health-app
 EOF
+
+# Make the script executable
 chmod +x deploy.sh

@@ -23,4 +23,4 @@ app.get('*', (req, res) => {
 
 (async () => { await db.init(); })();
 
-app.listen(PORT, () => console.log("Server running on " + PORT));
+app.listen(PORT, () => console.log("CI/CD SUCCESS! Server running new version on " + PORT));
